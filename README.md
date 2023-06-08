@@ -328,6 +328,28 @@ Running subtests in parallel allow you to have a lot more test cases and still g
 A `tc := tc` is needed. Because without it, only one of the cases would be checked.
 – [Be Careful with Table Driven Tests and t.Parallel()](https://gist.github.com/posener/92a55c4cd441fc5e5e85f27bca008721)
 
+If you find the `tc := tc` statement odd to look at you could try this which has the same effect, defining `tc` inside the block:
+
+```go
+func TestAdd(t *testing.T) {
+	cases := []struct {
+		A, B, Expected int
+	}{
+		{1, 1, 2},
+		{1, -1, 0},
+		{1, 0, 1},
+		{0, 0, 0},
+	}
+
+	for i := range cases {
+		tc := cases[i]
+		t.Run(fmt.Sprintf("%d + %d", tc.A, tc.B), func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tc.Expected, tc.A+tc.B)
+		})
+	}
+}
+```
 ### Avoid mocks
 
 **Don't:**
